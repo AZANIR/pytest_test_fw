@@ -37,12 +37,12 @@ def post_exists(api_context, post_id):
     api_context['existing_post'] = response.json()
 
 
-@when(parsers.parse('I create a post with title "{title}" and body "{body}" for user {user_id:d}'))
+@when(parsers.re(r'I create a post with title "(?P<title>.*?)" and body "(?P<body>.*?)" for user (?P<user_id>\d+)'))
 def create_post(api_context, title, body, user_id):
     post_data = {
         'title': title,
         'body': body,
-        'userId': user_id
+        'userId': int(user_id)
     }
     api_context['post_data'] = post_data
 

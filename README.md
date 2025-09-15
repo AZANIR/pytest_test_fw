@@ -6,6 +6,7 @@ An example test automation framework using pytest with integrated reporting to T
 
 - **API Testing**: RESTful API tests using requests library
 - **UI Testing**: Web UI tests using Selenium WebDriver
+- **BDD Testing**: Behavior-Driven Development tests using pytest-bdd with Gherkin syntax
 - **Testomatio Integration**: Automatic test reporting and synchronization
 - **Configurable Environment**: Environment-based configuration using .env files
 - **Parallel Execution**: Support for parallel test execution
@@ -21,6 +22,13 @@ pytest_test_fw/
 │   │   └── test_users_api.py
 │   ├── ui/                     # UI test cases
 │   │   └── test_example_ui.py
+│   ├── bdd/                    # BDD test cases
+│   │   ├── features/          # Gherkin feature files
+│   │   │   ├── user_authentication.feature
+│   │   │   └── api_operations.feature
+│   │   └── step_defs/         # Step definitions
+│   │       ├── test_authentication_steps.py
+│   │       └── test_api_operations_steps.py
 │   └── conftest.py            # Pytest configuration and fixtures
 ├── utils/
 │   ├── api_client.py          # API client helper
@@ -89,9 +97,13 @@ pytest tests/api/
 # Run UI tests only
 pytest tests/ui/
 
+# Run BDD tests only
+pytest tests/bdd/
+
 # Run tests with specific marker
 pytest -m smoke
 pytest -m regression
+pytest -m bdd
 ```
 
 #### Using the test runner script:
@@ -134,6 +146,7 @@ The framework uses the following pytest markers:
 
 - `@mark.api`: API tests
 - `@mark.ui`: UI tests
+- `@mark.bdd`: BDD tests
 - `@mark.smoke`: Smoke tests
 - `@mark.regression`: Regression tests
 - `@mark.testomatio('@T12345678')`: Testomatio test ID
@@ -162,6 +175,53 @@ def test_example_com_title(self, driver, config):
     """Test that example.com has correct title"""
     driver.get("https://example.com")
     assert "Example Domain" in driver.title
+```
+
+### BDD Test Example
+
+#### Feature File (`tests/bdd/features/user_authentication.feature`):
+```gherkin
+Feature: User Authentication
+  As a user
+  I want to authenticate with the system
+  So that I can access protected resources
+
+  Scenario: Successful login with valid credentials
+    Given a user with username "testuser" and password "testpass"
+    When the user attempts to login
+    Then the login should be successful
+    And the user should receive an authentication token
+
+  Scenario Outline: Create different types of posts
+    Given the API is available
+    When I create a post with title "<title>" and body "<body>" for user <userId>
+    Then the post should be created successfully
+
+    Examples:
+      | title           | body                    | userId |
+      | Test Post 1     | This is a test post     | 1      |
+      | Another Post    | Another test content    | 2      |
+```
+
+#### Step Definitions (`tests/bdd/step_defs/test_authentication_steps.py`):
+```python
+from pytest_bdd import scenarios, given, when, then, parsers
+
+scenarios('../features/user_authentication.feature')
+
+@given(parsers.parse('a user with username "{username}" and password "{password}"'))
+def user_credentials(auth_context, username, password):
+    auth_context['username'] = username
+    auth_context['password'] = password
+
+@when('the user attempts to login')
+def attempt_login(auth_context):
+    # Login logic here
+    pass
+
+@then('the login should be successful')
+def login_successful(auth_context):
+    assert auth_context['login_success'] is True
 ```
 
 ## Continuous Integration
