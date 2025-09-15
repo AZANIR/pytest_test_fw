@@ -37,8 +37,10 @@ pytest_test_fw/
 ## Setup
 
 ### 1. Install Dependencies
-
 ```bash
+python -m venv venv
+source venv/Scripts/activate # On Windows: venv\Scripts\activate
+
 pip install -r requirements.txt
 ```
 
